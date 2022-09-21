@@ -1,0 +1,106 @@
+---
+title: "Project 1"
+author: "Zhongcheng Tu"
+date: "2022-09-17"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+load packages
+```{r, warning=FALSE}
+library(syuzhet)
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+```
+
+read data
+```{r, warning=FALSE}
+philosophy_data <- read.csv("philosophy_data.csv")
+head(philosophy_data)
+```
+
+```{r, warning=FALSE}
+school_sentence <- philosophy_data[c(3, 5)]
+head(school_sentence)
+```
+divide by school
+```{r, warning=FALSE}
+# divide by school: analytic, aristotle, capitalism, communism, continental,
+# empiricism, feminism, german_idealism, nietzsche, phenomenology, plato, 
+# rationalism, stoicism.
+analytic <- philosophy_data[philosophy_data$school == "analytic",
+                            ]$sentence_str
+aristotle <- philosophy_data[philosophy_data$school == "aristotle",
+                             ]$sentence_str
+capitalism <- philosophy_data[philosophy_data$school == "capitalism",
+                              ]$sentence_str
+communism <- philosophy_data[philosophy_data$school == "communism",
+                             ]$sentence_str
+continental <- philosophy_data[philosophy_data$school == "continental",
+                               ]$sentence_str
+empiricism <- philosophy_data[philosophy_data$school == "empiricism",
+                              ]$sentence_str
+feminism <- philosophy_data[philosophy_data$school == "feminism",
+                            ]$sentence_str
+german_idealism <- philosophy_data[philosophy_data$school == "german_idealism",
+                                   ]$sentence_str
+nietzsche <- philosophy_data[philosophy_data$school == "nietzsche",
+                             ]$sentence_str
+phenomenology <- philosophy_data[philosophy_data$school == "phenomenology",
+                                 ]$sentence_str
+plato <- philosophy_data[philosophy_data$school == "plato",
+                         ]$sentence_str
+rationalism <- philosophy_data[philosophy_data$school == "rationalism",
+                               ]$sentence_str
+stoicism <- philosophy_data[philosophy_data$school == "stoicism",
+                            ]$sentence_str
+```
+
+
+find the emotion trend by school, return a table with proportion of different emotions
+```{r, warning=FALSE}
+emotion_proportion <- function(school, sample_size = 100){
+  result = colSums(get_nrc_sentiment(sample(school, sample_size)))
+  result = result / sum(result)
+  return(result)
+}
+
+emotion_proportion(stoicism)
+overall_emotion_by_school = 
+  data.frame(analytic = emotion_proportion(analytic), 
+             aristotle = emotion_proportion(aristotle), 
+             capitalism = emotion_proportion(capitalism), 
+             communism = emotion_proportion(communism), 
+             continental = emotion_proportion(continental), 
+             empiricism = emotion_proportion(empiricism), 
+             feminism = emotion_proportion(feminism), 
+             german_idealism = emotion_proportion(german_idealism), 
+             nietzsche = emotion_proportion(nietzsche), 
+             phenomenology = emotion_proportion(phenomenology), 
+             plato = emotion_proportion(plato), 
+             rationalism = emotion_proportion(rationalism), 
+             stoicism = emotion_proportion(stoicism))
+
+overall_emotion_by_school
+```
+
+show by boxplot
+```{r, warning=FALSE}
+barplot(t(as.matrix(overall_emotion_by_school)),
+        main = "Grouped barchart",ylab = "Frequency",
+        names.arg = rownames(overall_emotion_by_school),
+        col = c("antiquewhite", "aquamarine", "blue", "blueviolet", 
+        "burlywood", "chartreuse", "cornflowerblue", "cyan", 
+        "darkolivegreen2", "darkorchid1", 
+        "deepskyblue", "firebrick1", "deeppink"),
+        legend.text = colnames(overall_emotion_by_school),
+        legend = TRUE, args.legend = list(bty = "n", x = "top", ncol = 3),
+        beside = TRUE)
+```
+
+From the boxplot, it can be observed that some school shows a relatively strong trend in certain field of emotion. For example, German idealism and phenomenology shows a strong positive trend, while continental school shows more words in anger, fear, or sadness.
+
